@@ -1,0 +1,182 @@
+Homework #3
+Your name: Ryan Hanselman
+
+
+---------------------------------------- Question 1 Query ----------------------------------------
+
+SELECT last_name, first_name FROM employees WHERE NOT country='UK' AND hire_date<'2014-04-14' ORDER BY last_name;
+---------------------------------------- Question 1 Results ----------------------------------------
+
+last_name | first_name
+-----------+------------
+Callahan  | Laura
+Davolio   | Nancy
+Fuller    | Andrew
+Leverling | Janet
+Peacock   | Margaret
+
+---------------------------------------- Question 2 Query ----------------------------------------
+
+SELECT product_id, product_name, units_in_stock, unit_price FROM products WHERE units_in_stock<reorder_level AND units_in_stock>=1;
+---------------------------------------- Question 2 Results ----------------------------------------
+
+product_id |       product_name        | units_in_stock | unit_price
+------------+---------------------------+----------------+------------
+          2 | Chang                     |             17 |         19
+          3 | Aniseed Syrup             |             13 |         10
+         11 | Queso Cabrales            |             22 |         21
+         21 | Sir Rodney's Scones       |              3 |         10
+         30 | Nord-Ost Matjeshering     |             10 |      25.89
+         32 | Mascarpone Fabioli        |              9 |         32
+         37 | Gravad lax                |             11 |         26
+         43 | Ipoh Coffee               |             17 |         46
+         45 | Rogede sild               |              5 |        9.5
+         48 | Chocolade                 |             15 |      12.75
+         49 | Maxilaku                  |             10 |         20
+         56 | Gnocchi di nonna Alice    |             21 |         38
+         64 | Wimmers gute Semmelknödel |             22 |      33.25
+         66 | Louisiana Hot Spiced Okra |              4 |         17
+         68 | Scottish Longbreads       |              6 |       12.5
+         70 | Outback Lager             |             15 |         15
+         74 | Longlife Tofu             |              4 |         10
+
+
+---------------------------------------- Question 3 Query ----------------------------------------
+
+SELECT product_name, unit_price FROM products WHERE unit_price = (SELECT MIN(unit_price) FROM products);
+---------------------------------------- Question 3 Results ----------------------------------------
+
+product_name | unit_price
+--------------+------------
+ Geitost      |        2.5
+
+
+---------------------------------------- Question 4 Query ----------------------------------------
+
+SELECT product_id, product_name, units_in_stock*unit_price AS "inventory_value" FROM products WHERE units_in_stock*unit_price<200 ORDER BY units_in_stock*unit_price ASC;
+---------------------------------------- Question 4 Results ----------------------------------------
+
+product_id |       product_name        | inventory_value
+------------+---------------------------+------------------
+				29 | Thüringer Rostbratwurst   |                0
+				 5 | Chef Anton's Gumbo Mix    |                0
+				53 | Perth Pasties             |                0
+				17 | Alice Mutton              |                0
+				31 | Gorgonzola Telino         |                0
+				21 | Sir Rodney's Scones       |               30
+				74 | Longlife Tofu             |               40
+				45 | Rogede sild               |             47.5
+				66 | Louisiana Hot Spiced Okra |               68
+				68 | Scottish Longbreads       |               75
+				24 | Guaraná Fantástica        |               90
+				 3 | Aniseed Syrup             |              130
+				13 | Konbu                     |              144
+				54 | Tourtière                 | 156.449995994568
+				48 | Chocolade                 |           191.25
+
+
+---------------------------------------- Question 5 Query ----------------------------------------
+
+SELECT ship_country, COUNT(*) FROM orders WHERE NOT ship_country = 'USA' AND shipped_date >= '1996-08-1' AND shipped_date <= '1996-08-31' GROUP BY ship_country;
+---------------------------------------- Question 5 Results ----------------------------------------
+
+ship_country | count
+--------------+-------
+Spain        |     2
+Mexico       |     1
+Brazil       |     1
+UK           |     1
+Italy        |     1
+Venezuela    |     2
+Germany      |     7
+Finland      |     1
+Sweden       |     2
+France       |     2
+(10 rows)
+
+
+---------------------------------------- Question 6 Query ----------------------------------------
+
+SELECT DISTINCT customer_id FROM orders WHERE customer_id IN (SELECT customer_id FROM orders GROUP BY customer_id HAVING COUNT(customer_id)<4) ORDER BY customer_id DESC;
+---------------------------------------- Question 6 Results ----------------------------------------
+
+customer_id
+-------------
+TRAIH
+THECR
+NORTS
+LAZYK
+LAUGB
+GROSR
+FRANR
+CONSH
+CENTC
+BOLID
+
+
+---------------------------------------- Question 7 Query ----------------------------------------
+
+SELECT supplier_id, SUM(units_in_stock*unit_price) AS total_value FROM products GROUP BY supplier_id HAVING COUNT(supplier_id)>3;
+---------------------------------------- Question 7 Results ----------------------------------------
+
+supplier_id |   total_value
+-------------+------------------
+					7 | 4409.65005874634
+				 12 | 3301.84996032715
+					2 |  2833.7999420166
+					8 | 4276.99999523163
+
+---------------------------------------- Question 8 Query ----------------------------------------
+
+SELECT suppliers.company_name, products.product_name, products.unit_price FROM products, suppliers WHERE suppliers.country = 'France' AND products.supplier_id = suppliers.supplier_id ORDER BY unit_price DESC;
+---------------------------------------- Question 8 Results ----------------------------------------
+
+company_name        |      product_name      | unit_price
+----------------------------+------------------------+------------
+Aux joyeux ecclésiastiques | Côte de Blaye          |      263.5
+Gai pâturage               | Raclette Courdavault   |         55
+Gai pâturage               | Camembert Pierrot      |         34
+Aux joyeux ecclésiastiques | Chartreuse verte       |         18
+Escargots Nouveaux         | Escargots de Bourgogne |      13.25
+
+---------------------------------------- Question 9 Query ----------------------------------------
+
+SELECT last_name, first_name, title, extension, COUNT(orders.employee_id) FROM employees, orders WHERE orders.employee_id=employees.employee_id GROUP BY last_name, first_name, title, extension, orders.employee_id HAVING COUNT(orders.employee_id)<75 ORDER BY last_name DESC;
+---------------------------------------- Question 9 Results ----------------------------------------
+
+last_name | first_name |        title         | extension | count
+-----------+------------+----------------------+-----------+-------
+Suyama    | Michael    | Sales Representative | 428       |    67
+King      | Robert     | Sales Representative | 465       |    72
+Dodsworth | Anne       | Sales Representative | 452       |    43
+Buchanan  | Steven     | Sales Manager        | 3453      |    42
+
+---------------------------------------- Question 10 Query ----------------------------------------
+
+DROP TABLE IF EXISTS top_items;
+ CREATE TABLE top_items
+   (
+   item_id int NOT NULL,
+   item_code int NOT NULL,
+   item_name varchar(40) NOT NULL,
+   inventory_date DATE,
+	 supplier_id int NOT NULL,
+   item_quantity int NOT NULL,
+   item_price decimal(9,2) NOT NULL,
+   PRIMARY KEY (item_id)
+   );
+---------------------------------------- Question 11 Query ----------------------------------------
+
+INSERT INTO top_items (item_id, item_code, item_name, supplier_id, item_quantity, item_price) SELECT product_id, category_id, product_name, supplier_id, units_in_stock, unit_price FROM products WHERE units_in_stock*unit_price>2500;
+---------------------------------------- Question 12 Query ----------------------------------------
+
+DELETE FROM top_items WHERE top_items.supplier_id  IN (SELECT suppliers.supplier_id FROM suppliers WHERE item_quantity<50);
+---------------------------------------- Question 13 Query ----------------------------------------
+
+ALTER TABLE top_items ADD inventory_value decimal(9,2) default '0';
+---------------------------------------- Question 14 Query ----------------------------------------
+
+UPDATE top_items SET inventory_value = item_quantity*item_price;
+---------------------------------------- Question 15 Query ----------------------------------------
+
+DROP TABLE IF EXISTS  top_items;
